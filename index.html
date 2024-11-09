@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Memoria de Números Ordinales</title>
+    <title>Juego de Memoria de días de números cardinales</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background-color: #333;
         }
         h1 {
-            color: #333;
+            color: #f0f0f0;
         }
         #game-board {
             display: grid;
@@ -37,11 +38,24 @@
         #score {
             font-size: 24px;
             margin-top: 20px;
+            color:#f0f0f0;
+        }
+        /* Estilo para el screamer */
+        #screamer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* Oculto por defecto */
+            z-index: 1000;
+            object-fit: cover; 
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
 <body>
-    <h1>Juego de Memoria: Ordinales Español - Inglés</h1>
+    <h1>Juego de Memoria: Numero cardinales Español - Inglés</h1>
     <div id="game-board"></div>
     <div id="score">Puntaje: 0</div>
 
@@ -49,35 +63,45 @@
     <audio id="sound-exito" src="exito.mp3"></audio>
     <audio id="sound-fracaso" src="fracaso.mp3"></audio>
 
+    <!-- Imagen del screamer -->
+    <img id="screamer" src="screamer.webp" alt="Screamer">
+
     <script>
-        // Números ordinales en español e inglés
         const numbers = [
-
-    { esp: "11°", eng: "eleventh" },
-    { esp: "12°", eng: "twelfth" },
-    { esp: "13°", eng: "thirteenth" },
-    { esp: "14°", eng: "fourteenth" },
-    { esp: "15°", eng: "fifteenth" },
-    { esp: "16°", eng: "sixteenth" },
-    { esp: "17°", eng: "seventeenth" },
-    { esp: "18°", eng: "eighteenth" },
-    { esp: "19°", eng: "nineteenth" },
-    { esp: "20°", eng: "twentieth" },
-    { esp: "21°", eng: "twenty-first" }
-];
-
+            { esp: "1°", eng: "first" },
+            { esp: "2°", eng: "second" },
+            { esp: "3°", eng: "third" },
+            { esp: "4°", eng: "fourth" },
+            { esp: "5°", eng: "fifth" },
+            { esp: "6°", eng: "sixth" },
+            { esp: "7°", eng: "seventh" },
+            { esp: "8°", eng: "eighth" },
+            { esp: "9°", eng: "ninth" },
+            { esp: "10°", eng: "tenth" },
+            { esp: "11°", eng: "eleventh" },
+            { esp: "12°", eng: "twelfth" },
+            { esp: "13°", eng: "thirteenth" },
+            { esp: "14°", eng: "fourteenth" },
+            { esp: "15°", eng: "fifteenth" },
+            { esp: "16°", eng: "sixteenth" },
+            { esp: "17°", eng: "seventeenth" },
+            { esp: "18°", eng: "eighteenth" },
+            { esp: "19°", eng: "nineteenth" },
+            { esp: "20°", eng: "twentieth" },
+            { esp: "21°", eng: "twenty-first" }
+        ];
 
 
         let board = [];
         let firstCard = null;
         let secondCard = null;
         let score = 0;
+        let screamerShown = false; // Controla si el screamer ya se ha mostrado en el error actual
 
-        // Obtener elementos de sonido
         const soundExito = document.getElementById("sound-exito");
         const soundFracaso = document.getElementById("sound-fracaso");
+        const screamer = document.getElementById("screamer");
 
-        // Generar tablero mezclado con pares exactos en español e inglés
         function initializeGame() {
             board = [];
             numbers.forEach(item => {
@@ -88,7 +112,6 @@
             renderBoard();
         }
 
-        // Renderizar el tablero
         function renderBoard() {
             const gameBoard = document.getElementById("game-board");
             gameBoard.innerHTML = "";
@@ -103,7 +126,6 @@
             });
         }
 
-        // Voltear la tarjeta seleccionada
         function flipCard(card, item) {
             if (card.classList.contains("flipped") || (firstCard && secondCard)) return;
 
@@ -116,23 +138,35 @@
             }
         }
 
-        // Verificar coincidencia
         function checkMatch() {
             if (firstCard.item.esp === secondCard.item.esp && firstCard.item.language !== secondCard.item.language) {
                 score++;
                 document.getElementById("score").innerText = `Puntaje: ${score}`;
-                soundExito.play();  // Reproduce el sonido de éxito
+                soundExito.play();
                 firstCard = null;
                 secondCard = null;
+                screamerShown = false; // Reiniciar el screamer para el próximo error
             } else {
-                soundFracaso.play();  // Reproduce el sonido de fracaso
+                soundFracaso.play();
+                if (!screamerShown) {
+                    showScreamer();
+                    screamerShown = true; // Asegurarse que solo aparece una vez por error
+                }
                 setTimeout(() => {
                     firstCard.card.classList.remove("flipped");
                     secondCard.card.classList.remove("flipped");
                     firstCard = null;
                     secondCard = null;
-                }, 1000);
+                    screamerShown = false; // Reiniciar para el próximo error
+                }, 0);
             }
+        }
+
+        function showScreamer() {
+            screamer.style.display = "block";
+            setTimeout(() => {
+                screamer.style.display = "none";
+            }, 800); // El screamer aparece durante 2 segundos
         }
 
         initializeGame();
