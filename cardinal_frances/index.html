@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria de días de números cardinales</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #333;
+        }
+        h1 {
+            color: #f0f0f0;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            background-color: #0073e6;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .card.flipped {
+            background-color: #009688;
+        }
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+            color:#f0f0f0;
+        }
+        /* Estilo para el screamer */
+        #screamer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* Oculto por defecto */
+            z-index: 1000;
+            object-fit: cover; 
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Memoria: Numero cardinales Español - Inglés</h1>
+    <div id="game-board"></div>
+    <div id="score">Puntaje: 0</div>
+
+    <!-- Archivos de sonido -->
+    <audio id="sound-exito" src="exito.mp3"></audio>
+    <audio id="sound-fracaso" src="fracaso.mp3"></audio>
+
+    <!-- Imagen del screamer -->
+    <img id="screamer" src="screamer.webp" alt="Screamer">
+
+    <script>
+        const numbers = [
+            { esp: "1°", eng: "first", fra: "premier" },
+            { esp: "2°", eng: "second", fra: "deuxième" },
+            { esp: "3°", eng: "third", fra: "troisième" },
+            { esp: "4°", eng: "fourth", fra: "quatrième" },
+            { esp: "5°", eng: "fifth", fra: "cinquième" },
+            { esp: "6°", eng: "sixth", fra: "sixième" },
+            { esp: "7°", eng: "seventh", fra: "septième" },
+            { esp: "8°", eng: "eighth", fra: "huitième" },
+            { esp: "9°", eng: "ninth", fra: "neuvième" },
+            { esp: "10°", eng: "tenth", fra: "dixième" },
+            { esp: "11°", eng: "eleventh", fra: "onzième" },
+            { esp: "12°", eng: "twelfth", fra: "douzième" },
+            { esp: "13°", eng: "thirteenth", fra: "treizième" },
+            { esp: "14°", eng: "fourteenth", fra: "quatorzième" },
+            { esp: "15°", eng: "fifteenth", fra: "quinzième" },
+            { esp: "16°", eng: "sixteenth", fra: "seizième" },
+            { esp: "17°", eng: "seventeenth", fra: "dix-septième" },
+            { esp: "18°", eng: "eighteenth", fra: "dix-huitième" },
+            { esp: "19°", eng: "nineteenth", fra: "dix-neuvième" },
+            { esp: "20°", eng: "twentieth", fra: "vingtième" },
+            { esp: "21°", eng: "twenty-first", fra: "vingt-et-unième" }
+        ];
+
+
+        let board = [];
+        let firstCard = null;
+        let secondCard = null;
+        let score = 0;
+        let screamerShown = false; // Controla si el screamer ya se ha mostrado en el error actual
+
+        const soundExito = document.getElementById("sound-exito");
+        const soundFracaso = document.getElementById("sound-fracaso");
+        const screamer = document.getElementById("screamer");
+
+        function initializeGame() {
+            board = [];
+            numbers.forEach(item => {
+                board.push({ ...item, id: Math.random(), language: 'esp' });
+                board.push({ ...item, id: Math.random(), language: 'fra' });
+            });
+            board.sort(() => 0.5 - Math.random());
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const gameBoard = document.getElementById("game-board");
+            gameBoard.innerHTML = "";
+            board.forEach(item => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.dataset.id = item.id;
+                card.dataset.language = item.language;
+                card.innerText = item.language === "esp" ? item.esp : item.fra;
+                card.addEventListener("click", () => flipCard(card, item));
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard(card, item) {
+            if (card.classList.contains("flipped") || (firstCard && secondCard)) return;
+
+            card.classList.add("flipped");
+            if (!firstCard) {
+                firstCard = { card, item };
+            } else if (!secondCard) {
+                secondCard = { card, item };
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            if (firstCard.item.esp === secondCard.item.esp && firstCard.item.language !== secondCard.item.language) {
+                score++;
+                document.getElementById("score").innerText = `Puntaje: ${score}`;
+                soundExito.play();
+                firstCard = null;
+                secondCard = null;
+                screamerShown = false; // Reiniciar el screamer para el próximo error
+            } else {
+                soundFracaso.play();
+                if (!screamerShown) {
+                    showScreamer();
+                    screamerShown = true; // Asegurarse que solo aparece una vez por error
+                }
+                setTimeout(() => {
+                    firstCard.card.classList.remove("flipped");
+                    secondCard.card.classList.remove("flipped");
+                    firstCard = null;
+                    secondCard = null;
+                    screamerShown = false; // Reiniciar para el próximo error
+                }, 0);
+            }
+        }
+
+        function showScreamer() {
+            screamer.style.display = "block";
+            setTimeout(() => {
+                screamer.style.display = "none";
+            }, 800); // El screamer aparece durante 2 segundos
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>
