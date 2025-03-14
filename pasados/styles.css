@@ -64,3 +64,28 @@ select {
 .incorrect {
     color: #ff3030; /* Rojo brillante para respuestas incorrectas */
 }
+
+button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #ffffff; /* Texto blanco */
+    background-color: #4a90e2; /* Azul brillante */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Efecto suave */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
+}
+
+button:hover {
+    background-color: #357abd; /* Azul más oscuro al pasar el mouse */
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño */
+}
+
+button:active {
+    background-color: #2a6496; /* Azul aún más oscuro al hacer clic */
+    transform: scale(0.98); /* Reduce ligeramente el tamaño */
+}
