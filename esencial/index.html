@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria "esencial"</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #333;
+        }
+        h1 {
+            color: #f0f0f0;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 130px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .card {
+            width: 130px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            background-color: #0073e6;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .card:hover {
+            color: rgb(109, 109, 109);
+            background-color: #4da4fa;
+            transition: 0.3s;
+
+        }
+        .card.flipped {
+            background-color: #0bc734;
+        }
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+            color:#f0f0f0;
+        }
+        /* Estilo para el screamer */
+        #screamer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* Oculto por defecto */
+            z-index: 1000;
+            object-fit: cover; 
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Memoria: "esencial"</h1>
+    <div id="game-board"></div>
+    <div id="score">Puntaje: 0</div>
+
+    <!-- Archivos de sonido -->
+    <audio id="sound-exito" src="exito.mp3"></audio>
+    <audio id="sound-fracaso" src="fracaso.mp3"></audio>
+
+    <!-- Imagen del screamer -->
+    <img id="screamer" src="screamer.webp" alt="Screamer">
+
+    <script>
+        const numbers = [
+        { esp: "Señorita", fra: "Mademoiselle (Mlle)" },
+        { esp: "Señora", fra: "Madame (Mme)" },
+        { esp: "Señor", fra: "Monsieur (M)" },
+        { esp: "no", fra: "non" },
+        { esp: "sí", fra: "oui" },
+        { esp: "¿Podría ayudarme?", fra: "Pourriez-vous m'aider ?" },
+        { esp: "(No) Estoy de acuerdo", fra: "Je (ne) suis (pas) d'accord" },
+        { esp: "No sé", fra: "Je ne sais pas" },
+        { esp: "Necesito... (+verbo)", fra: "J'ai besoin de ... (+ verbe)" },
+        { esp: "Está bien, está bueno", fra: "C'est bien, c'est bon" },
+        { esp: "Me gustaría un...", fra: "J'aimerais un ..." },
+        { esp: "¡Salud! (para un brindis)", fra: "Santé ! (pour trinquer)" },
+        { esp: "Mi nombre es Patricia, y mi apellido es García", fra: "Mon prénom est Patricia, et mon nom est Garcia" },
+        { esp: "Me gusta mucho este país", fra: "J'aime beaucoup ce pays" },
+        { esp: "Tengo treinta años", fra: "J'ai trente ans" }
+        ];
+
+
+        let board = [];
+        let firstCard = null;
+        let secondCard = null;
+        let score = 0;
+        let screamerShown = false; // Controla si el screamer ya se ha mostrado en el error actual
+
+        const soundExito = document.getElementById("sound-exito");
+        const soundFracaso = document.getElementById("sound-fracaso");
+        const screamer = document.getElementById("screamer");
+
+        function initializeGame() {
+            board = [];
+            numbers.forEach(item => {
+                board.push({ ...item, id: Math.random(), language: 'esp' });
+                board.push({ ...item, id: Math.random(), language: 'fra' });
+            });
+            board.sort(() => 0.5 - Math.random());
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const gameBoard = document.getElementById("game-board");
+            gameBoard.innerHTML = "";
+            board.forEach(item => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.dataset.id = item.id;
+                card.dataset.language = item.language;
+                card.innerText = item.language === "esp" ? item.esp : item.fra;
+                card.addEventListener("click", () => flipCard(card, item));
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard(card, item) {
+            if (card.classList.contains("flipped") || (firstCard && secondCard)) return;
+
+            card.classList.add("flipped");
+            if (!firstCard) {
+                firstCard = { card, item };
+            } else if (!secondCard) {
+                secondCard = { card, item };
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            if (firstCard.item.esp === secondCard.item.esp && firstCard.item.language !== secondCard.item.language) {
+                score++;
+                document.getElementById("score").innerText = `Puntaje: ${score}`;
+                soundExito.play();
+                firstCard = null;
+                secondCard = null;
+                screamerShown = false; // Reiniciar el screamer para el próximo error
+            } else {
+                soundFracaso.play();
+                if (!screamerShown) {
+                    showScreamer();
+                    screamerShown = true; // Asegurarse que solo aparece una vez por error
+                }
+                setTimeout(() => {
+                    firstCard.card.classList.remove("flipped");
+                    secondCard.card.classList.remove("flipped");
+                    firstCard = null;
+                    secondCard = null;
+                    screamerShown = false; // Reiniciar para el próximo error
+                }, 0);
+            }
+        }
+
+        function showScreamer() {
+            screamer.style.display = "block";
+            setTimeout(() => {
+                screamer.style.display = "none";
+            }, 800); // El screamer aparece durante 2 segundos
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>
