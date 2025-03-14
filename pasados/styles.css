@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1f1f1f; /* Fondo oscuro */
+    color: #e0e0e0; /* Texto claro */
+}
+
+.container {
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    background-color: #2d2d2d; /* Fondo del contenedor más claro */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombra sutil */
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #ffffff; /* Título en blanco */
+}
+
+p {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #d0d0d0; /* Texto secundario más claro */
+}
+
+.question {
+    margin-top: 50px;
+    font-size: 1.2em;
+    color: #ffffff; /* Texto principal en blanco */
+}
+
+.translation {
+    font-size: 1em;
+    color: #8a8a8a; /* Traducción en gris claro */
+    margin-top: 5px;
+    font-style: italic;
+}
+
+select {
+    padding: 5px;
+    font-size: 1em;
+    background-color: #3d3d3d; /* Fondo del select oscuro */
+    color: #ffffff; /* Texto del select en blanco */
+    border: 1px solid #555; /* Borde discreto */
+    border-radius: 5px;
+}
+
+.correct {
+    color: #30ff30; /* Verde brillante para respuestas correctas */
+}
+
+.incorrect {
+    color: #ff3030; /* Rojo brillante para respuestas incorrectas */
+}
